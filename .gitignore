@@ -1,0 +1,7 @@
+.DS_Store
+*~
+node_modules
+example/test.js
+example/y8*
+test/dev
+sitemap.xml
