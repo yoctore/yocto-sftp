@@ -1,0 +1,230 @@
+/* Markdown theme */
+.readme h1, .readme h2, .readme h3, .readme h4, .readme h5, .readme h6 {
+  color: black;
+  border-bottom: 1px solid black;
+  text-transform: uppercase;
+}
+
+h1 {
+  line-height: 60px;
+}
+
+h2 {
+  line-height: 50px;
+}
+
+h3 {
+  line-height: 40px;
+}
+
+h4 {
+  line-height: 30px;
+}
+
+h5, h6 {
+  line-height: 25px;
+}
+
+a {
+  color: red;
+}
+
+/* Theme override */
+
+#main section header h2 {
+  display: none;
+}
+
+nav {
+  background-color: black;
+}
+
+nav h2 {
+  background: white;
+}
+
+nav > h2 > a {
+  color: black !important;
+}
+
+.name {
+  color: black;
+}
+
+nav h3 {
+  margin-left: 10px;
+  margin-right: 10px;
+  border-bottom: 1px solid white;
+  padding-left: 0px;
+}
+
+nav ul {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+nav  li {
+  padding: 0 !important;
+}
+
+nav ul a {
+  margin-left: 3px;
+}
+
+nav ul ul a {
+  padding-left: 15px;
+}
+
+.prettyprint {
+  font-size: 12px;
+  border-radius: 0;
+}
+
+.prettyprint, li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9 {
+  background: black !important;
+}
+
+.prettyprint code {
+  line-height: 16px;
+  background: none;
+}
+
+h1.page-title {
+  margin: 15px 30px;
+}
+
+.details {
+  margin-top: 5px;
+}
+
+.details dt {
+  padding-left: 0;
+  width: auto;
+  margin-right: 10px;
+}
+
+.details .tag-source,
+.details .tag-see,
+.details dt,
+.details dd {
+  font-size: 12px;
+  font-style: italic;
+}
+
+.details .tag-see a {
+  color:blue;
+}
+
+.details .tag-default {
+  font-size: 13px;
+  font-style: italic;
+}
+
+.details dd {
+  margin-left: 0px;
+}
+
+h3.subsection-title {
+  border-bottom: 1px solid black;
+  line-height: 40px;
+}
+
+h3 {
+  margin-bottom: 10px;
+}
+
+.page-title {
+  color: black;
+  border-bottom: 1px solid black;
+}
+
+tt, code, kbd, samp {
+  background: #CCC;
+  border-radius: 0;
+}
+
+.params, .props {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.params td,
+.props td,
+.readme td {
+  border: 1px solid #CCC;
+  padding: 10px;
+}
+
+.readme th {
+  border: 1px solid #CCC;
+}
+
+.readme table {
+  border-collapse: collapse;
+}
+
+.type-signature {
+  color: green;
+}
+
+footer {
+  background: black;
+  bottom: 0;
+  width: 100%;
+  padding: 15px;
+  text-transform: none;
+}
+
+.version {
+  position: absolute;
+  top: 0;
+  right: 0px;
+  background: white;
+  color: black;
+  padding: 35px 0px;
+  text-transform: lowercase;
+  border-left: 1px solid black;
+  width: 100px;
+  height: 89px;
+  text-align: center;
+}
+
+.logo {
+  width: 150px;
+  background-color: white;
+  margin: 0;
+  display: block;
+  padding: 10px;
+}
+
+.prettyprint.linenums li {
+  border-left: 0.5px #ddd solid;
+}
+
+.prettyprint.linenums li.selected {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.prettyprint.linenums li.selected * {
+  background: none !important;
+}
+
+.article {
+  margin-top: 30px;
+}
+
+.article pre {
+  border-radius: 0;
+}
+
+input.search {
+  border: none;
+  border-bottom: 1px;
+  width: 235px;
+  margin-left: 5px;
+  margin-top: 15px;
+  padding: 5px;
+  background: transparent;
+  border-bottom: 1px solid black;
+  color: white;
+}

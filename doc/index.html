@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - yocto-sftp</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css"/>
+    <link type="text/css" rel="stylesheet" href="styles/tomorrow-night.min.css"/>
+    <script type="text/javascript" src="scripts/lodash.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="scripts/search.js"></script>
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+  <a href="http://www.yocto.re" target="_blank"><img class="logo" src="./extras/logo-yocto.png" alt="logo-yocto"/></a>
+    <h2><a href="index.html">Home</a><span class="version">v0.1.0</span></h2><input class="search" placeholder="Type your search here ...." /><h3>Classes</h3><ul><li><a href="sftp.html">sftp</a></li></ul><h3>Global</h3><ul><li><a href="global.html#config">config</a></li><li><a href="global.html#logger">logger</a></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><p><a href="https://nodei.co/npm/yocto-sftp/"><img src="https://nodei.co/npm/yocto-sftp.png?downloads=true&amp;downloadRank=true&amp;stars=true" alt="NPM"></a></p>
+<p><img src="https://david-dm.org/yoctore/yocto-sftp.svg" alt="alt text" title="Dependencies Status">
+<a href="https://codeclimate.com/github/yoctore/yocto-sftp"><img src="https://codeclimate.com/github/yoctore/yocto-sftp/badges/gpa.svg" alt="Code Climate"></a>
+<a href="https://codeclimate.com/github/yoctore/yocto-sftp/coverage"><img src="https://codeclimate.com/github/yoctore/yocto-sftp/badges/coverage.svg" alt="Test Coverage"></a>
+<a href="https://codeclimate.com/github/yoctore/yocto-sftp"><img src="https://codeclimate.com/github/yoctore/yocto-sftp/badges/issue_count.svg" alt="Issue Count"></a>
+<a href="https://travis-ci.org/yoctore/yocto-sftp"><img src="https://travis-ci.org/yoctore/yocto-sftp.svg?branch=master" alt="Build Status"></a></p>
+<h2>Overview</h2><p>This module is a part of yocto node modules for NodeJS.</p>
+<p>Please see <a href="https://www.npmjs.com/~yocto">our NPM repository</a> for complete list of available tools (completed day after day).</p>
+<p>This module provide a simple sitemap generator based <a href="https://www.npmjs.com/package/sitemap-generator">sitemap-generator</a>.</p>
+<h2>Motivation</h2><p>Create an simple module that create a sftp client with SSH2 library.</p>
+<h2>Specification</h2><p>This is an wrapper of SSH2 library.
+All methods handle automatic connect and close process to the ftp server.</p>
+<h3>Ftp method implemented</h3><ul>
+<li>get</li>
+<li>delete</li>
+<li>put</li>
+<li>ls</li>
+</ul>
+<h2>Usage</h2><h3>Basic configuration</h3><blockquote>
+<p>Configure module, configuration object will be check by an Joi schema</p>
+</blockquote>
+<pre class="prettyprint source lang-javascript"><code>var logger    = require('yocto-logger');
+var sftp      = require('yocto-sftp')(logger);
+
+var config = {
+  host        : &quot;10.10.10.10&quot;,
+  port        : 22,
+  user        : &quot;test&quot;,
+  password    : &quot;pwd&quot;,
+  algorithms  : {
+    serverHostKey: [ 'ssh-rsa', 'ssh-dss' ],
+  },
+  agent       : process.env.SSH_AUTH_SOCK
+};
+
+
+// path dir to list
+var pathDir = '/jumbodrive.re/ads/';
+
+// connect
+sftp.load(config).then(function () {
+  console.log('\n --> config success ... ');
+  // connect to client
+  sftp.connect().then(function(client) {
+    // the client is :
+    // {  
+    //    // ssh2 instance
+    //    client : client,
+    //    // sftp instance
+    //    sftp   : sftp
+    // }
+    console.log('\n --> connect success ');
+
+    setTimeout(function () {
+      console.log('\n --> end client connection ...');
+      // manually close the connect
+      sftp.end(client);
+    }, 2000);
+  }).catch(function (error) {
+    console.log('\n --> connect failed ', error);
+  });
+}).catch(function (error) {
+  console.log('\n --> error : ', error);
+});</code></pre><h3>Get an document</h3><blockquote>
+<p>This method download an file from sftp server</p>
+</blockquote>
+<pre class="prettyprint source lang-javascript"><code>
+var localPathFile   = '/toto';
+var remotePathFile  =  '/tata';
+
+// connect
+sftp.load(config).then(function () {
+  console.log('\n --> config success ... ');
+
+  sftp.get(localPathFile, remotePathFile).then(function (list) {
+    console.log('\n --> ls success \n', list);
+
+  }).catch(function (error) {
+    console.log('\n --> ls failed ', error);
+  });
+}).catch(function (error) {
+  console.log('\n --> error : ', error);
+});</code></pre><h3>List directory</h3><blockquote>
+<p>This method return an array of files description from ftp server</p>
+</blockquote>
+<pre class="prettyprint source lang-javascript"><code>
+var remotePathFOlder  =  '/tata/';
+
+// connect
+sftp.load(config).then(function () {
+  console.log('\n --> config success ... ');
+
+  sftp.ls(remotePathFOlder).then(function (list) {
+    console.log('\n --> ls success \n', list);
+
+  }).catch(function (error) {
+    console.log('\n --> ls failed ', error);
+  });
+}).catch(function (error) {
+  console.log('\n --> error : ', error);
+});</code></pre><h3>Delete an document</h3><blockquote>
+<p>This method remove an file in sftp server</p>
+</blockquote>
+<pre class="prettyprint source lang-javascript"><code>
+var remotePathFile  =  '/tata.png';
+
+// connect
+sftp.load(config).then(function () {
+  console.log('\n --> config success ... ');
+
+  sftp.delete(remotePathFile).then(function (list) {
+    console.log('\n --> ls success \n', list);
+
+  }).catch(function (error) {
+    console.log('\n --> ls failed ', error);
+  });
+}).catch(function (error) {
+  console.log('\n --> error : ', error);
+});</code></pre><h3>Put an document</h3><blockquote>
+<p>This method upload an file in sftp server</p>
+</blockquote>
+<pre class="prettyprint source lang-javascript"><code>
+var localPathFile   = '/toto';
+var remotePathFile  =  '/tata';
+
+// connect
+sftp.load(config).then(function () {
+  console.log('\n --> config success ... ');
+
+  sftp.put(localPathFile, remotePathFile).then(function (list) {
+    console.log('\n --> ls success \n', list);
+
+  }).catch(function (error) {
+    console.log('\n --> ls failed ', error);
+  });
+}).catch(function (error) {
+  console.log('\n --> error : ', error);
+});</code></pre><h3>Check if an file exit on ftp server</h3><blockquote>
+<p>This Check if an file exit on ftp server</p>
+</blockquote>
+<pre class="prettyprint source lang-javascript"><code>
+var remotePathFile  =  '/tata';
+
+// connect
+sftp.load(config).then(function () {
+  console.log('\n --> config success ... ');
+
+  sftp.fileExist(remotePathFile).then(function (list) {
+    console.log('\n --> ls success \n', list);
+
+  }).catch(function (error) {
+    console.log('\n --> ls failed ', error);
+  });
+}).catch(function (error) {
+  console.log('\n --> error : ', error);
+});</code></pre></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>Documentation for application <b>yocto-sftp<b> was generated at Wed Mar 01 2017 10:34:33 GMT+0400 (RET) with <a href='https://www.npmjs.com/package/yoctodoc'>yocto-doc</a> module - Copyright Yocto © 2017</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

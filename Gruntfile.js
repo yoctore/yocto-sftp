@@ -49,6 +49,13 @@ module.exports = function (grunt) {
         },
         src     : [ 'test/*.js' ]
       }
+    },
+    yoctodoc  : {
+      options : {
+        destination     : 'doc',
+        copyExtraFiles  : [ './src/index.js' ]
+      },
+      all     : [ './src/index.js' ]
     }
   });
 
@@ -56,10 +63,12 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('yocto-hint');
+  grunt.loadNpmTasks('yocto-doc');
 
   // register tasks
   grunt.registerTask('hint', [ 'yoctohint' ]);
   grunt.registerTask('test', 'mochaTest');
-  grunt.registerTask('build', [ 'yoctohint', 'uglify' ]);
-  grunt.registerTask('default', [ 'build', 'test' ]);
+  grunt.registerTask('build', [ 'yoctohint', 'uglify', 'doc']);
+  grunt.registerTask('default', [ 'build', 'test', 'doc' ]);
+  grunt.registerTask('doc', 'yoctodoc');
 };
