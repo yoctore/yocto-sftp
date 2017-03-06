@@ -1,10 +1,10 @@
 {
   "name": "yocto-sftp",
   "version": "0.1.0",
-  "description": "",
+  "description": "This is an wrapper of SSH2 library to simply create sftp connection.",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt test"
   },
   "repository": {
     "type": "git",
