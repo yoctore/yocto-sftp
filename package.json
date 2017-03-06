@@ -8,10 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yoctore/yocto-sftp.git"
+    "url": "https://github.com/yoctore/yocto-sftp.git"
   },
   "bugs": {
     "url": "https://github.com/yoctore/yocto-sftp/issues"
+  },
+  "author": {
+    "name": "Yocto SAS",
+    "email": "technique@yocto.re",
+    "url": "http://www.yocto.re"
   },
   "homepage": "https://github.com/yoctore/yocto-sftp#readme",
   "contributors": [
