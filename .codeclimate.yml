@@ -1,0 +1,17 @@
+engines:
+  duplication:
+    enabled: false
+    config:
+      languages:
+      - javascript
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+ratings:
+  paths:
+  - "**.js"
+exclude_paths: [ 'dist', 'test', 'example', 'doc' ]
+engines: 
+  eslint:
+    enabled: true
