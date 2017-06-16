@@ -7,6 +7,7 @@ var Q             = require('q');
 var fs            = require('fs');
 var ClientSSH     = require('ssh2').Client;
 var path          = require('path');
+var async         = require('async');
 
 /**
  *
@@ -19,7 +20,7 @@ var path          = require('path');
  * @module SitemapGenerator
  */
 function Sftp (l) {
-
+  // set logger
   this.logger = l;
 }
 
@@ -109,41 +110,81 @@ Sftp.prototype.end = function (client) {
 
 /**
  * Method to list folder of an directory on ftp server
+ * If client exist use it and don't make an new connection
  *
  * @param  {Object} config the config to connect
  * @param  {Object} remotePathDir the path of folder to list
+ * @param  {Object} client the sftp client if already connected
  * @return {Object} promise of this method
  */
-Sftp.prototype.ls = function (config, remotePathDir) {
+Sftp.prototype.ls = function (config, remotePathDir, client) {
 
+  client = client || false;
+  // indicate if client was used
+  var usedClient = false;
+  var result = [];
   // create async process
   var deferred  = Q.defer();
   // normalize the path
   remotePathDir = path.normalize(remotePathDir);
-  // connect to the ftp
-  this.connect(config).then(function (client) {
 
-    this.logger.debug('[ Sftp.ls ] - list file in folder : ', remotePathDir);
-    // retrieve the list
-    client.sftp.readdir(remotePathDir, function (error, list) {
-      // check if an error occured
-      if (error) {
-        this.logger.error('[ Sftp.ls ] - an error occured when execute the list command, more ' +
-        'details : ', utils.obj.inspect(error));
-
-        // reject error
-        deferred.reject(error);
+  // control flow
+  async.series([
+    // check if already connect or should connect
+    function (done) {
+      // already connected ?
+      if (client) {
+        // set that client used already euxt
+        usedClient = true;
+        // end
+        return done();
       }
-      this.logger.debug('[ Sftp.ls ] - list file command success');
-      // resolve the file
-      deferred.resolve(list);
-      // close the connection
+
+      // connect to the ftp
+      this.connect(config).then(function (c) {
+        // set clent
+        client = c;
+        done();
+      }.bind(this)).catch(function (error) {
+        // reject the error
+        done(error);
+      });
+    }.bind(this),
+    // process
+    function (done) {
+      this.logger.debug('[ Sftp.ls ] - list file in folder : ', remotePathDir);
+      // retrieve the list
+      client.sftp.readdir(remotePathDir, function (error, list) {
+        // check if an error occured
+        if (error) {
+          this.logger.error('[ Sftp.ls ] - an error occured when execute the list command, more ' +
+          'details : ', utils.obj.inspect(error));
+
+          // reject error
+          return done(error);
+        }
+        this.logger.debug('[ Sftp.ls ] - list file command success');
+        // resolve the file
+        result = list;
+        // success
+        done();
+      }.bind(this));
+    }.bind(this)
+  ], function (error) {
+    // check if client was used
+    if (!usedClient) {
+      // close the connection because client was not used
       this.end(client);
-    }.bind(this));
-  }.bind(this)).catch(function (error) {
-    // reject the error
-    deferred.reject(error);
-  });
+    }
+
+    // check error
+    if (error) {
+      // reject error
+      return deferred.reject(error);
+    }
+    // success
+    deferred.resolve(result);
+  }.bind(this));
 
   // return result of control flow
   return deferred.promise;
@@ -154,9 +195,10 @@ Sftp.prototype.ls = function (config, remotePathDir) {
  *
  * @param  {Object} config the config to connect
  * @param  {Object} remotePathFile the path of the file to check if exits
+ * @param  {Object} client the sftp client if already connected
  * @return {Object} promise of this method
  */
-Sftp.prototype.fileExist = function (config, remotePathFile) {
+Sftp.prototype.fileExist = function (config, remotePathFile, client) {
 
   // create async process
   var deferred  = Q.defer();
@@ -166,7 +208,7 @@ Sftp.prototype.fileExist = function (config, remotePathFile) {
   this.logger.info('[ Sftp.fileExist ] - check if the file exist : ', remotePathFile);
 
   // connect to the ftp
-  this.ls(config, path.dirname(remotePathFile)).then(function (list) {
+  this.ls(config, path.dirname(remotePathFile), client).then(function (list) {
     // find in the list folder if file exist
     var file = _.find(list, { filename : path.basename(remotePathFile) });
     // check if an file are found
@@ -347,6 +389,109 @@ Sftp.prototype.get = function (config, localPathFile, remotePathFile) {
   });
 
   // return result of process
+  return deferred.promise;
+};
+
+/**
+* Method to create folder into sftp
+*
+* @param  {Object} client the sftp client
+* @param  {Object} path the path to create
+* @return {Object} promise of this method
+ */
+Sftp.prototype.createFolder = function (client, path) {
+  // create async process
+  var deferred  = Q.defer();
+
+  // check if folder already exist
+  this.fileExist(null, path, client).then(function () {
+    // folder not created bevause exist
+    deferred.resolve(false);
+  }.bind(this)).catch(function () {
+    // create folder
+    client.sftp.mkdir(path, function (error) {
+      // check if an error occured
+      if (error) {
+        // reject error
+        return deferred.reject(error);
+      }
+      // resolve the file
+      deferred.resolve(path);
+    }.bind(this));
+  }.bind(this));
+  // return result of process
+  return deferred.promise;
+};
+
+/**
+ * Method to handle the creating folder into sftp
+ * Parent folder can be created like *mkdirp* command
+ *
+ * @param  {Object} config the config to connect
+ * @param  {String} pathFolder folder to create
+ * @param  {Boolean} parent indicate if parent folder should be created
+ * @return {Object} promise of this method
+ */
+Sftp.prototype.mkdir = function (config, pathFolder, parent) {
+
+  // create async process
+  var deferred  = Q.defer();
+  // normalize the path
+  pathFolder = path.normalize(pathFolder);
+
+  // folder to create, by default only one
+  var folderToCreate = [ pathFolder ];
+
+  // check if should create parent folder
+  if (parent) {
+    // parent folder should be created
+    var pathTmp = '';
+    // split each folder to create subfolder
+    folderToCreate = (_.map(_.compact(_.split(pathFolder, '/')), function (p) {
+      // return path to create
+      return pathTmp += ('/' + p);
+    }));
+  }
+
+  // connect to the ftp
+  this.connect(config).then(function (client) {
+    // control flow to create all folder in array
+    async.eachSeries(folderToCreate, function (f, nextFolder) {
+      this.logger.debug('[ Sftp.mkdir ] - create folder : ', f);
+      // create folder
+      this.createFolder(client, f).then(function (folderCreated) {
+
+        // success
+        this.logger.debug('[ Sftp.mkdir ] - ' + (!folderCreated ?
+        ' folder already exist for path : ' : ' folder was created : ') + f);
+        // create next folder
+        nextFolder();
+      }.bind(this)).catch(function (error) {
+        // failed
+        this.logger.error('[ Sftp.createFolder ] - an error occured , more ' +
+        'details : ', utils.obj.inspect(error));
+        // error
+        nextFolder(error);
+      }.bind(this));
+    }.bind(this), function (error) {
+      // close connection
+      this.end(client);
+      // check if has error
+      if (error) {
+        // reject error
+        return deferred.reject(error);
+      }
+
+      this.logger.info('[ Sftp.mkdir ] - the folder was correctly created : ', pathFolder);
+      // success
+      deferred.resolve(pathFolder);
+    }.bind(this));
+  }.bind(this)).catch(function (error) {
+    // reject the error
+    deferred.reject(error);
+  });
+
+  // return result of control flow
   return deferred.promise;
 };
 

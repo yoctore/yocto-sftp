@@ -144,6 +144,21 @@ Sftp.prototype.get = function (localPathFile, remotePathFile) {
   return this.sftp.get(this.config, localPathFile, remotePathFile);
 };
 
+/**
+ * Method to handle the creating folder into sftp
+ * Parent folder can be created like *mkdirp* command
+ *
+ * @param  {Object} path the path to create
+ * @param  {Boolean} parent indicate if parent folder should be created
+ * @return {Object} the promise of methods
+ */
+Sftp.prototype.mkdir = function (path, parent) {
+
+  parent = parent || false;
+  // return promise of method
+  return this.sftp.mkdir(this.config, path, parent);
+};
+
 // Default export
 module.exports = function (l) {
   // is a valid logger ?

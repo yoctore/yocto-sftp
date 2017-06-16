@@ -28,6 +28,7 @@ All methods handle automatic connect and close process to the ftp server.
   - delete
   - put
   - ls
+  - mkdir (with mkdirp)
 
 
 ## Usage
@@ -198,6 +199,32 @@ sftp.load(config).then(function () {
 
   }).catch(function (error) {
     console.log('\n --> ls failed ', error);
+  });
+}).catch(function (error) {
+  console.log('\n --> error : ', error);
+});
+
+```
+
+### Create folder and its own parent if speciefied
+
+> This Create folder into sftp
+
+```javascript
+
+var remotePathFOlder  =  '/toto/tata/titi/tutu';
+// If true parent folder will be created otherwise none
+var createParent = true;
+
+// connect
+sftp.load(config).then(function () {
+  console.log('\n --> config success ... ');
+
+  sftp.mkdir(remotePathFile, createParent).then(function (list) {
+    console.log('\n --> create success \n', list);
+
+  }).catch(function (error) {
+    console.log('\n --> create failed ', error);
   });
 }).catch(function (error) {
   console.log('\n --> error : ', error);
